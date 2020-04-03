@@ -1,6 +1,6 @@
 今天与大家分享一个很高效的精确求解无穷个随机变量之和的CDF（[累积分布函数](https://en.wikipedia.org/wiki/Cumulative_distribution_function)）的方法。
 
-题意：设![](http://latex.codecogs.com/gif.latex?\\Y=\sum_{i=1}^{\infty}X_i)，其中![](http://latex.codecogs.com/gif.latex?\\X_i)为互相独立的正随机变量。已知![](http://latex.codecogs.com/gif.latex?\\Y)有上界![](http://latex.codecogs.com/gif.latex?\\U)。给定一个正数![](http://latex.codecogs.com/gif.latex?\\a \leq U)，希望求出![](http://latex.codecogs.com/gif.latex?\\Pr[Y < a ])。
+题意：设$Y=\sum_{i=1}^{\infty}X_i$，其中$X_i$为互相独立的正随机变量。已知$Y$有上界$U$。给定一个正数$a \leq U$，希望求出$Pr[Y < a ]$。
 
 尝试：由于题目是无穷个随机变量的和，无法一个个枚举所有变量的情况，而且由[大数定理](https://en.wikipedia.org/wiki/Law_of_large_numbers)，$Y$的分布类似于高斯分布，[重尾效应](https://en.wikipedia.org/wiki/Heavy-tailed_distribution)严重（即有限的部分和无法精确拟合真正的$Y$的分布），故直接暴力枚举（有限个）$X_i$并不能精确求解概率。
 
