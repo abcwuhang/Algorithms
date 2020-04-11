@@ -1,3 +1,5 @@
+原文链接：https://github.com/abcwuhang/Algorithms/blob/master/multiplicative/multiplicative.pdf
+
 今天与大家分享一些数论知识和新（？）科技（与广为人知的杜教筛相得益彰~）
 
 感谢[zzq](https://www.cnblogs.com/zzqsblog/p/9904271.html)对pe某数论问题论坛里（我的）解法的扩充
