@@ -82,9 +82,9 @@ $=\sum_{i|n}f(i)[\frac{n}{i}=1]=f(n)$
 
 给一个普通积性函数$f$，现在希望求它的前缀和：$F(n)=\sum_{i=1}^n f(i)$。对任一积性函数$g$，都存在一个积性函数$h$满足$f=g \ast h$（方便起见，可以用除号表示$h$，即$h=f/g$）。将式子展开，有$f(p^e)=\sum_{i=0}^{e}g(p^i)h(p^{e-i})$（$p$为素数，e为正整数）。特别的，有$f(p)=g(1)h(p)+g(p)h(1)=g(p)+h(p)$。
 
-记$h$的前缀和为$G(n)=\sum_{i=1}^{n}g(i)$，那么有$F(n)=\sum_{i=1}^n f(i)=\sum_{i=1}^n\sum_{j|i}h(j)g(\frac{i}{j})=\sum_{j=1}^{n}\sum_{k=1}^{\lfloor \frac{n}{j} \rfloor}h(j)g(k)=\sum_{j=1}^{n}h(j)G(\lfloor \frac{n}{j} \rfloor)$。如果我们能构造一个$g$，使得相对应的$h$在素数处的取值都为$0$（即对任意素数$p$，$f(p)=g(p)$），那么我们只需要求$1$到$n$中所有[幂数](https://zh.wikipedia.org/wiki/%E5%86%AA%E6%95%B8)（[powerful number](https://en.wikipedia.org/wiki/Powerful_number)）处的$h$和$G$的值即可。（一个数$n$是幂数，当且仅当对$n$的所有素因子$p$，$p^2$都能整除$n$）（$h$在素数幂处的值可由上面$f=g \ast h$表达式展开求出）
+记$g$的前缀和为$G(n)=\sum_{i=1}^{n}g(i)$，那么有$F(n)=\sum_{i=1}^n f(i)=\sum_{i=1}^n\sum_{j|i}h(j)g(\frac{i}{j})=\sum_{j=1}^{n}\sum_{k=1}^{\lfloor \frac{n}{j} \rfloor}h(j)g(k)=\sum_{j=1}^{n}h(j)G(\lfloor \frac{n}{j} \rfloor)$。如果我们能构造一个$g$，使得相对应的$h$在素数处的取值都为$0$（即对任意素数$p$，$f(p)=g(p)$），那么我们只需要求$1$到$n$中所有[幂数](https://zh.wikipedia.org/wiki/%E5%86%AA%E6%95%B8)（[powerful number](https://en.wikipedia.org/wiki/Powerful_number)）处的$h$和$G$的值即可。（一个数$n$是幂数，当且仅当对$n$的所有素因子$p$，$p^2$都能整除$n$）（$h$在素数幂处的值可由上面$f=g \ast h$表达式展开求出）
 
-原理：观察前缀和表达式，只需要考虑$h(j)$不为0时的贡献即可。由于对任意素数$p$都有$h(p)=0$，那么$h(j)\neq 0$当且仅当$j$的因式分解表达式为$\prod_{i=1}^{k}p_{i}^{e_i}$，其中所有$e_i$均大于等于$2$。由于不大于$n$的powerful number个数至多有$O(\sqrt{n})$个，如果$G$能在$O(n^\alpha)$时间复杂度内求出，则求$f$前缀和的算法时间复杂度为$O(max(\sqrt{n},n^\alpha\cdot\frac{\zeta(2\alpha)\zeta(3\alpha)}{\zeta(6\alpha)}))$，实际表现非常强劲，上界$10^{16}$都能几秒钟出结果，复杂度常数非常低。
+原理：观察前缀和表达式，只需要考虑$h(j)$不为0时的贡献即可。由于对任意素数$p$都有$h(p)=0$，那么$h(j)\neq 0$当且仅当$j$的因式分解表达式为$\prod_{i=1}^{k}p_{i}^{e_i}$，其中所有$e_i$均大于等于$2$。由于不大于$n$的powerful number个数至多有$O(\sqrt{n})$个，如果$G$能在$O(n^\alpha)$时间复杂度内求出，则求$f$前缀和的算法时间复杂度为$O(max(\sqrt{n},n^\alpha\cdot\frac{\zeta(2\alpha)\zeta(3\alpha)}{\zeta(6\alpha)}))$，其中$\zeta$为黎曼函数。算法实际表现非常强劲，上界$10^{16}$都能几秒钟出结果，复杂度常数非常低。
 
 下面看几个（迷之）例子：
 
