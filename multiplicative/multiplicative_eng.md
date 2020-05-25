@@ -10,3 +10,5 @@ A few examples:
 2. $f(p^e)=e+1$: we can let $g(x)=\sigma_0(x)$, the divisor counting function. The final time complexity is $O(\sqrt{n})$.
 3. $f(p^e)=p^e-1$: we can let $g(x)=\varphi(x)$, the Euler's totient function. The final time complexity is $O(n^\frac{2}{3})$.
 
+Note that if we let the multiplicative function $g(p^e)=f(p)^e$, the above method converts the problem “summing a multiplicative function” into a problem “summing a completely multiplicative function”. We can just focus on the latter one to solve the class of these problems.
+
