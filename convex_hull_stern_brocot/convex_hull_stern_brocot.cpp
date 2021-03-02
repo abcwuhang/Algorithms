@@ -331,7 +331,7 @@ convex_hull(const long long &N, const long long &x1, const long long &y1,
           y += sign * left.second;
           if (x < x2) {
             assigned = true;
-            last = std::make_pair(x, y - 1);
+            last = std::make_pair(x, y);
           } else
             break;
         }
@@ -395,7 +395,7 @@ brute_force_convex_hull(const long long &N, const long long &x1,
   };
 
   const bool convex = df(x1) < df(x1 + 1);
-  if (!convex && inside(x1, y1) || convex && !inside(x1, y1))
+  if (!convex && inside(x1, y1) || convex && inside(x1, y1))
     ret.emplace_back(std::make_pair(x1, y1));
   if (x1 + 1 == x2)
     return std::make_pair(0, 0);
@@ -464,6 +464,7 @@ brute_force_convex_hull(const long long &N, const long long &x1,
         y = y1;
       while (outside(x, y))
         --y;
+      ++y;
       points.emplace_back(x, y);
     }
     long long x = x1, y = y1;
@@ -602,7 +603,7 @@ void test_convex_decrease(long long N, bool eq, bool print_detail = false) {
   std::vector<std::pair<long long, long long>> hull;
   long long x0 = 1;
   std::pair<long long, long long> first_slope =
-      convex_hull(N, x0, f(x0) - eq, N + 1, f, df, outside, hull);
+      convex_hull(N, x0, f(x0) + 1 - eq, N + 1, f, df, outside, hull);
   if (print_detail) {
     for (const auto &i : hull)
       printf("(%lld, %lld), ", i.first, i.second);
@@ -611,7 +612,7 @@ void test_convex_decrease(long long N, bool eq, bool print_detail = false) {
 
   std::vector<std::pair<long long, long long>> correct_hull;
   std::pair<long long, long long> correct_first_slope = brute_force_convex_hull(
-      N, x0, f(x0) - eq, N + 1, f, df, outside, correct_hull);
+      N, x0, f(x0) + 1 - eq, N + 1, f, df, outside, correct_hull);
   if (print_detail) {
     for (const auto &i : correct_hull)
       printf("(%lld, %lld), ", i.first, i.second);
@@ -640,7 +641,7 @@ void test_convex_increase(long long N, bool eq, bool print_detail = false) {
   std::vector<std::pair<long long, long long>> hull;
   long long x0 = 1;
   std::pair<long long, long long> first_slope =
-      convex_hull(N, x0, f(x0) - eq, N + 1, f, df, outside, hull);
+      convex_hull(N, x0, f(x0) + 1 - eq, N + 1, f, df, outside, hull);
   if (print_detail) {
     for (const auto &i : hull)
       printf("(%lld, %lld), ", i.first, i.second);
@@ -649,7 +650,7 @@ void test_convex_increase(long long N, bool eq, bool print_detail = false) {
 
   std::vector<std::pair<long long, long long>> correct_hull;
   std::pair<long long, long long> correct_first_slope = brute_force_convex_hull(
-      N, x0, f(x0) - eq, N + 1, f, df, outside, correct_hull);
+      N, x0, f(x0) + 1 - eq, N + 1, f, df, outside, correct_hull);
   if (print_detail) {
     for (const auto &i : correct_hull)
       printf("(%lld, %lld), ", i.first, i.second);
