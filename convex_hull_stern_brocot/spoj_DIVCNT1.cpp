@@ -1,3 +1,8 @@
+#pragma GCC optimize("Ofast")
+#pragma GCC optimize("unroll-loops")
+#pragma GCC target("avx2")
+#pragma GCC optimize("Os")
+
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -244,7 +249,7 @@ convex_hull(const long long &N, const long long &x1, const long long &y1,
             assigned = true;
             last = std::make_pair(x, y);
           } else
-            break;
+            return first_slope;
         }
         if (assigned && last.second >= 0)
           ret.emplace_back(last);
@@ -375,318 +380,61 @@ convex_hull(const long long &N, const long long &x1, const long long &y1,
   }
 }
 
-std::pair<long long, long long>
-brute_force_convex_hull(const long long &N, const long long &x1,
-                        const long long &y1, const long long &x2,
-                        const std::function<double(long long)> &f,
-                        const std::function<double(long long)> &df,
-                        const std::function<bool(long long, long long)> &inside,
-                        std::vector<std::pair<long long, long long>> &ret) {
-  assert(x1 < x2);
-
-  std::function<long long(long long, long long)> gcd;
-  gcd = [&gcd](long long x, long long y) -> long long {
-    return y ? gcd(y, x % y) : x;
-  };
-  auto simplify = [&gcd](long long a,
-                         long long b) -> std::pair<long long, long long> {
-    long long g = gcd(a, b);
-    return std::make_pair(a / g, b / g);
-  };
-
-  const bool convex = df(x1) < df(x1 + 1);
-  if (!convex && inside(x1, y1) || convex && !inside(x1, y1))
-    ret.emplace_back(std::make_pair(x1, y1));
-  if (x1 + 1 == x2)
-    return std::make_pair(0, 0);
-
-  const int sign = (df(x1) < 0) ? -1 : 1;
-  if (!convex) {
-    std::vector<std::pair<long long, long long>> points;
-    for (long long x = x1; x < x2; ++x) {
-      long long y = f(x) + eps;
-      if (x == x1)
-        y = y1;
-      while (!inside(x, y))
-        --y;
-      points.emplace_back(x, y);
-    }
-    long long x = x1, y = y1;
-    if (sign == -1) {
-      for (long long now = 0;;) {
-        std::pair<long long, long long> min_slope;
-        size_t next = -1;
-        for (size_t i = now + 1; i < points.size(); ++i) {
-          std::pair<long long, long long> slope =
-              simplify(abs(points.at(i).second - points.at(now).second),
-                       abs(points.at(i).first - points.at(now).first));
-          if (next == -1 ||
-              next != -1 &&
-                  min_slope.first * slope.second >=
-                      slope.first * min_slope.second) {
-            next = i;
-            min_slope = slope;
-          }
-        }
-        if (next == -1)
-          break;
-        ret.emplace_back(points.at(next));
-        now = next;
-      }
-    } else {
-      for (long long now = 0;;) {
-        std::pair<long long, long long> max_slope;
-        size_t next = -1;
-        for (size_t i = now + 1; i < points.size(); ++i) {
-          std::pair<long long, long long> slope =
-              simplify(abs(points.at(i).second - points.at(now).second),
-                       abs(points.at(i).first - points.at(now).first));
-          if (next == -1 ||
-              next != -1 &&
-                  max_slope.first * slope.second <=
-                      slope.first * max_slope.second) {
-            next = i;
-            max_slope = slope;
-          }
-        }
-        if (next == -1)
-          break;
-        ret.emplace_back(points.at(next));
-        now = next;
-      }
-    }
-  } else {
-    const auto &outside = inside;
-    std::vector<std::pair<long long, long long>> points;
-    for (long long x = x1; x < x2; ++x) {
-      long long y = f(x) + eps;
-      if (x == x1)
-        y = y1;
-      while (outside(x, y))
-        --y;
-      points.emplace_back(x, y);
-    }
-    long long x = x1, y = y1;
-    if (sign == -1) {
-      for (long long now = 0;;) {
-        std::pair<long long, long long> max_slope;
-        size_t next = -1;
-        for (size_t i = now + 1; i < points.size(); ++i) {
-          std::pair<long long, long long> slope =
-              simplify(abs(points.at(i).second - points.at(now).second),
-                       abs(points.at(i).first - points.at(now).first));
-          if (next == -1 ||
-              next != -1 &&
-                  max_slope.first * slope.second <=
-                      slope.first * max_slope.second) {
-            next = i;
-            max_slope = slope;
-          }
-        }
-        if (next == -1)
-          break;
-        ret.emplace_back(points.at(next));
-        now = next;
-      }
-    } else {
-      for (long long now = 0;;) {
-        std::pair<long long, long long> min_slope;
-        size_t next = -1;
-        for (size_t i = now + 1; i < points.size(); ++i) {
-          std::pair<long long, long long> slope =
-              simplify(abs(points.at(i).second - points.at(now).second),
-                       abs(points.at(i).first - points.at(now).first));
-          if (next == -1 ||
-              next != -1 &&
-                  min_slope.first * slope.second >=
-                      slope.first * min_slope.second) {
-            next = i;
-            min_slope = slope;
-          }
-        }
-        if (next == -1)
-          break;
-        ret.emplace_back(points.at(next));
-        now = next;
-      }
-    }
-  }
-  if ((int)ret.size() < 2)
-    return std::make_pair(0, 0);
-  return simplify(abs(ret.at(0).first - ret.at(1).first),
-                  abs(ret.at(0).second - ret.at(1).second));
+long long gcd(long long x, long long y) {
+  return y ? gcd(y, x % y) : x;
 }
-
-void test_concave_decrease(long long N, bool print_detail = false) {
-  std::function<double(long long)> f = [&](long long x) {
-    return sqrt(N - x * x);
-  };
-  std::function<double(long long)> df = [&](long long x) {
-    return -x / sqrt(N - x * x);
-  };
-  std::function<double(long long, long long)> inside =
-      [&](long long x, long long y) { return x * x + y * y <= N; };
-
-  std::vector<std::pair<long long, long long>> hull;
-  long long x0 = 1;
-  std::pair<long long, long long> first_slope =
-      convex_hull(N, x0, f(x0), sqrt(N), f, df, inside, hull);
-  if (print_detail) {
-    for (const auto &i : hull)
-      printf("(%lld, %lld), ", i.first, i.second);
-    printf("\n%lld/%lld\n", first_slope.second, first_slope.first);
+__int128 S(long long N) {
+  if (N < 12) {
+    long long ret = 0;
+    for (long long i = 1; i <= N; ++i)
+      ret += N / i;
+    return ret;
   }
-
-  std::vector<std::pair<long long, long long>> correct_hull;
-  std::pair<long long, long long> correct_first_slope = brute_force_convex_hull(
-      N, x0, f(x0), sqrt(N), f, df, inside, correct_hull);
-  if (print_detail) {
-    for (const auto &i : correct_hull)
-      printf("(%lld, %lld), ", i.first, i.second);
-    printf("\n%lld/%lld\n", correct_first_slope.second,
-           correct_first_slope.first);
-  }
-
-  assert(hull == correct_hull);
-  assert(first_slope == correct_first_slope);
-
-  printf("pass test_concave_decrease %lld\n", N);
-}
-
-void test_concave_increase(long long N, bool print_detail = false) {
-  std::function<double(long long)> f = [&](long long x) {
-    return sqrt(N - pow(sqrt(N) - x, 2));
-  };
-  std::function<double(long long)> df = [&](long long x) {
-    return (sqrt(N) - x) / sqrt(N - pow(sqrt(N) - x, 2));
-  };
-  std::function<double(long long, long long)> inside = [&](long long x,
-                                                           long long y) {
-    return (sqrt(N) - x) * (sqrt(N) - x) + y * y <= N - eps;
-  };
-
-  std::vector<std::pair<long long, long long>> hull;
-  long long x0 = 1;
-  std::pair<long long, long long> first_slope =
-      convex_hull(N, x0, f(x0), sqrt(N), f, df, inside, hull);
-  if (print_detail) {
-    for (const auto &i : hull)
-      printf("(%lld, %lld), ", i.first, i.second);
-    printf("\n%lld/%lld\n", first_slope.second, first_slope.first);
-  }
-
-  std::vector<std::pair<long long, long long>> correct_hull;
-  std::pair<long long, long long> correct_first_slope = brute_force_convex_hull(
-      N, x0, f(x0), sqrt(N), f, df, inside, correct_hull);
-  if (print_detail) {
-    for (const auto &i : correct_hull)
-      printf("(%lld, %lld), ", i.first, i.second);
-    printf("\n%lld/%lld\n", correct_first_slope.second,
-           correct_first_slope.first);
-  }
-
-  assert(hull == correct_hull);
-  assert(first_slope == correct_first_slope);
-
-  printf("pass test_concave_increase %lld\n", N);
-}
-
-void test_convex_decrease(long long N, bool eq, bool print_detail = false) {
   std::function<double(long long)> f = [&](long long x) { return N * 1.0 / x; };
   std::function<double(long long)> df = [&](long long x) {
     return -N * 1.0 / x / x;
   };
   std::function<double(long long, long long)> outside =
-      [&](long long x, long long y) { return eq ? x * y >= N : x * y > N; };
+      [&](long long x, long long y) { return (__int128)x * y > (__int128)N; };
 
   std::vector<std::pair<long long, long long>> hull;
-  long long x0 = 1;
-  std::pair<long long, long long> first_slope =
-      convex_hull(N, x0, f(x0) - eq, N + 1, f, df, outside, hull);
-  if (print_detail) {
-    for (const auto &i : hull)
-      printf("(%lld, %lld), ", i.first, i.second);
-    printf("\n%lld/%lld\n", first_slope.second, first_slope.first);
+  long long x0 = sqrtl(N + 0.5), x1 = cbrtl(N) * cbrtl(N);
+  convex_hull(N, x0 + 1, N / (x0 + 1) + 1, x1, f, df, outside, hull);
+  for (long long y = hull.back().second - 1; y >= 2; --y)
+    hull.emplace_back(N / y + 1, y);
+  //for (const auto &i : hull)
+  //  printf("(%lld, %lld), ", i.first, i.second);
+  __int128 ret = 1 + (__int128)N - (N / 2 + 1);
+  for (size_t i = 0; i + 1 < hull.size(); ++i) {
+    const std::pair<long long, long long> &p1 = hull.at(i), &p2 = hull.at(i + 1);
+    long long g = gcd(p2.first - p1.first, p1.second - p2.second);
+    __int128 points = (__int128)(p2.first - p1.first) + g + p2.second + p1.second;
+    __int128 internal = ((__int128)(p2.second + p1.second) * (p2.first - p1.first) - points) / 2 + 1;
+    ret = ret + internal + p1.second - 1;
   }
-
-  std::vector<std::pair<long long, long long>> correct_hull;
-  std::pair<long long, long long> correct_first_slope = brute_force_convex_hull(
-      N, x0, f(x0) - eq, N + 1, f, df, outside, correct_hull);
-  if (print_detail) {
-    for (const auto &i : correct_hull)
-      printf("(%lld, %lld), ", i.first, i.second);
-    printf("\n%lld/%lld\n", correct_first_slope.second,
-           correct_first_slope.first);
-  }
-
-  assert(hull == correct_hull);
-  assert(first_slope == correct_first_slope);
-
-  printf("pass test_convex_decrease %lld %d\n", N, (int)eq);
+  return ret * 2 + x0 * x0;
 }
 
-void test_convex_increase(long long N, bool eq, bool print_detail = false) {
-  std::function<double(long long)> f = [&](long long x) {
-    return N * 1.0 / (N + 1 - x);
-  };
-  std::function<double(long long)> df = [&](long long x) {
-    return N * 1.0 / (N + 1 - x) / (N + 1 - x);
-  };
-  std::function<double(long long, long long)> outside = [&](long long x,
-                                                            long long y) {
-    return eq ? ((N + 1 - x) * y >= N) : ((N + 1 - x) * y > N);
-  };
-
-  std::vector<std::pair<long long, long long>> hull;
-  long long x0 = 1;
-  std::pair<long long, long long> first_slope =
-      convex_hull(N, x0, f(x0) - eq, N + 1, f, df, outside, hull);
-  if (print_detail) {
-    for (const auto &i : hull)
-      printf("(%lld, %lld), ", i.first, i.second);
-    printf("\n%lld/%lld\n", first_slope.second, first_slope.first);
-  }
-
-  std::vector<std::pair<long long, long long>> correct_hull;
-  std::pair<long long, long long> correct_first_slope = brute_force_convex_hull(
-      N, x0, f(x0) - eq, N + 1, f, df, outside, correct_hull);
-  if (print_detail) {
-    for (const auto &i : correct_hull)
-      printf("(%lld, %lld), ", i.first, i.second);
-    printf("\n%lld/%lld\n", correct_first_slope.second,
-           correct_first_slope.first);
-  }
-
-  assert(hull == correct_hull);
-  assert(first_slope == correct_first_slope);
-
-  printf("pass test_convex_increase %lld %d\n", N, (int)eq);
+void print(__int128 x) {
+  if (x < 10) {printf("%d", (int)x); return; }
+  print(x / 10);
+  printf("%d", (int)(x % 10));
 }
 
 int main() {
-  test_concave_decrease(100);
-  test_concave_decrease(101);
-  test_concave_decrease(1e9 + 7);
-
-  test_concave_increase(100);
-  test_concave_increase(101);
-  test_concave_increase(1e9 + 7);
-
-  test_convex_decrease(100, false);
-  test_convex_decrease(101, false);
-  test_convex_decrease(1e5 + 7, false);
-
-  test_convex_decrease(100, true);
-  test_convex_decrease(101, true);
-  test_convex_decrease(1e5 + 7, true);
-
-  test_convex_increase(100, false);
-  test_convex_increase(101, false);
-  test_convex_increase(1e6 + 7, false);
-
-  test_convex_increase(100, true);
-  test_convex_increase(101, true);
-  test_convex_increase(1e6 + 7, true);
-
+  /*for (int n = 1; n <= 100000; ++n) {
+    long long correct = 0;
+    for (int i = 1; i <= n; ++i)
+      correct += n / i;
+    long long my = S(n);
+    assert(correct == my);
+  }*/
+  int testcases;
+  scanf("%d", &testcases);
+  for (int i = 0; i < testcases; ++i) {
+    long long n;
+    scanf("%lld", &n);
+    print(S(n)),printf("\n");
+  }
   return 0;
 }
