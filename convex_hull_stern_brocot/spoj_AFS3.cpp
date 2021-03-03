@@ -384,10 +384,6 @@ struct node{
 	node(){f=0,g=0,h=0;}
 };
 node calc(__int128 a,__int128 b,__int128 c,__int128 n){
-  if (!(a >= 0 && b >= 0 && c > 0 && n >= 0)) {
-    int www;
-    www = 0;
-  }
 	node ans,res;
 	__int128 m,t1,t2,s1,s2;
 	if(!n){ans.f=b/c;ans.g=Sqr(b/c);return ans;}
@@ -479,7 +475,7 @@ __int128 S(long long N) {
     ret = ret + val;
     //if (i % 1000000 == 0) printf("%d finished, total = %d\n", (int)i, (int)hull.size());
   }
-  __int128 temp = (N & 1) ? ((__int128)(N + 1) / 2 * N) : ((__int128)N / 2 * (N + 1));
+  __uint128_t temp = (N & 1) ? (((__uint128_t)N + 1) / 2 * N) : ((__uint128_t)N / 2 * (N + 1));
   ret -= temp;
   return ret;
 }
@@ -503,11 +499,11 @@ int main() {
     }
     correct /= 2;
     correct = correct - __uint128_t(v) * v * (v + 1) / 2;
-    __int128 temp = (n & 1) ? ((__int128)(n + 1) / 2 * n) : ((__int128)n / 2 * (n + 1));
+    __uint128_t temp = (n & 1) ? (((__uint128_t)n + 1) / 2 * n) : ((__uint128_t)n / 2 * (n + 1));
     correct -= temp;
-    //print(correct),printf("\n");
+    print(correct),printf("\n");
     __int128 my = S(n);
-    //print(my),printf("\n");
+    print(my),printf("\n");
     assert(correct == my);
   }*/
   int testcases;
