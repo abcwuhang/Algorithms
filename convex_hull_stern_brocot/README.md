@@ -11,3 +11,5 @@ Moreover, other weighted-lattice-points counting can also be solved based on thi
 
 ### Updates:
 [DIVCNT1](https://www.spoj.com/problems/DIVCNT1/) is solved by the above algorithm. The source code is also uploaded.
+
+[AFS3](https://www.spoj.com/problems/AFS3/) is uploaded. However, it is too slow to be accepted. 
